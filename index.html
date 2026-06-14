@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ruota di Verona</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Lora:wght@700&display=swap');
+
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0e0f11;
+    --surface: #16181c;
+    --surface2: #1e2026;
+    --border: rgba(255,255,255,0.08);
+    --border-hover: rgba(255,255,255,0.18);
+    --text: #f0f0f0;
+    --muted: #888;
+    --accent: #6ee7b7;
+    --accent-dim: rgba(110,231,183,0.12);
+    --accent-dim2: rgba(110,231,183,0.22);
+    --red: #f87171;
+    --red-dim: rgba(248,113,113,0.12);
+    --yellow: #fbbf24;
+    --yellow-dim: rgba(251,191,36,0.12);
+  }
+
+  body { background: var(--bg); color: var(--text); font-family: 'Nunito', sans-serif; font-size: 15px; line-height: 1.6; min-height: 100vh; }
+
+  header { border-bottom: 1px solid var(--border); padding: 2.5rem 2rem 2rem; max-width: 820px; margin: 0 auto; }
+  .eyebrow { font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 0.75rem; }
+  h1 { font-family: 'Nunito', sans-serif; font-weight: 800; font-size: clamp(1.8rem, 4vw, 2.8rem); line-height: 1.1; color: #fff; margin-bottom: 0.5rem; }
+  .subtitle { color: var(--muted); font-size: 14px; }
+  .meta-bar { display: flex; gap: 1.5rem; margin-top: 1.5rem; flex-wrap: wrap; }
+  .meta-pill { font-size: 12px; color: var(--muted); background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; padding: 4px 12px; }
+  .meta-pill span { color: var(--text); font-weight: 500; }
+
+  main { max-width: 820px; margin: 0 auto; padding: 2rem; }
+
+  .progress-bar-wrap { background: var(--surface2); border-radius: 99px; height: 4px; margin-bottom: 2.5rem; overflow: hidden; }
+  .progress-bar { height: 100%; background: var(--accent); border-radius: 99px; transition: width 0.4s ease; width: 0%; }
+  .score-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+  .score-label { font-size: 13px; color: var(--muted); }
+  .score-value { font-size: 13px; color: var(--accent); font-weight: 600; }
+
+  .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 1.75rem; margin-bottom: 1.25rem; transition: border-color 0.2s; }
+  .question-card.answered-correct { border-color: var(--accent); }
+  .question-card.answered-wrong { border-color: var(--red); }
+
+  .q-header { display: flex; align-items: flex-start; gap: 1rem; margin-bottom: 1.25rem; }
+  .q-num { flex-shrink: 0; font-family: 'Nunito', sans-serif; font-size: 11px; font-weight: 800; color: var(--muted); background: var(--surface2); border-radius: 6px; padding: 3px 8px; margin-top: 2px; }
+.q-text { font-size: 17px; font-weight: 700; font-family: 'LoraF', serif; color: #fff; line-height: 1.4; }
+
+  .options { display: grid; gap: 8px; }
+  .option { display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: transparent; cursor: poNunito; transition: border-color 0.15s, background 0.15s; text-align: left; width: 100%; color: var(--text); font-family: inherit; font-size: 14px; line-height: 1.5; }
+  .option:hover:not(:disabled) { border-color: var(--border-hover); background: var(--surface2); }
+  .option .opt-letter { flex-shrink: 0; font-size: 11px; font-weight: 700; color: var(--muted); background: var(--surface2); border-radius: 4px; padding: 2px 6px; margin-top: 1px; transition: background 0.15s, color 0.15s; }
+  .option.selected { border-color: rgba(255,255,255,0.3); background: var(--surface2); }
+  .option.selected .opt-letter { background: rgba(255,255,255,0.15); color: #fff; }
+  .option.correct { border-color: var(--accent); background: var(--accent-dim); }
+  .option.correct .opt-letter { background: var(--accent); color: #000; }
+  .option.wrong { border-color: var(--red); background: var(--red-dim); }
+  .option.wrong .opt-letter { background: var(--red); color: #fff; }
+  .option:disabled { cursor: default; }
+
+  .card-footer { margin-top: 1.25rem; display: flex; gap: 10px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+  .btn-confirm { font-family: inherit; font-size: 13px; font-weight: 600; color: #000; background: var(--accent); border: none; border-radius: 8px; padding: 8px 20px; cursor: poNunito; transition: opacity 0.15s, transform 0.1s; }
+  .btn-confirm:hover { opacity: 0.85; }
+  .btn-confirm:active { transform: scale(0.97); }
+  .btn-confirm:disabled { background: var(--surface2); color: var(--muted); cursor: default; }
+
+  .result-tag { font-size: 12px; font-weight: 600; border-radius: 6px; padding: 4px 10px; display: none; }
+  .result-tag.correct { display: inline-block; background: var(--accent-dim2); color: var(--accent); }
+  .result-tag.wrong { display: inline-block; background: var(--red-dim); color: var(--red); }
+  .result-tag.incomplete { display: inline-block; background: var(--yellow-dim); color: var(--yellow); }
+
+  .note-box { display: none; margin-top: 1rem; padding: 12px 14px; border-left: 3px solid var(--yellow); background: var(--yellow-dim); border-radius: 0 8px 8px 0; font-size: 13px; color: #e0c97a; line-height: 1.6; }
+  .note-box.visible { display: block; }
+  .note-label { font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--yellow); margin-bottom: 4px; }
+
+  .summary { display: none; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 2.5rem; text-align: center; margin-top: 2rem; }
+  .summary.visible { display: block; }
+  .summary-score { font-family: 'Nunito', sans-serif; font-size: 4rem; font-weight: 800; color: var(--accent); line-height: 1; margin-bottom: 0.25rem; }
+  .summary-label { color: var(--muted); font-size: 14px; margin-bottom: 1.5rem; }
+  .summary-detail { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; margin-bottom: 1.5rem; }
+  .stat-pill { background: var(--surface2); border: 1px solid var(--border); border-radius: 10px; padding: 10px 20px; font-size: 13px; color: var(--muted); }
+  .stat-pill strong { display: block; font-size: 20px; color: var(--text); font-family: 'Nunito', sans-serif; }
+  .btn-restart { font-family: inherit; font-size: 14px; font-weight: 600; background: var(--accent); color: #000; border: none; border-radius: 10px; padding: 12px 28px; cursor: poNunito; transition: opacity 0.15s; }
+  .btn-restart:hover { opacity: 0.85; }
+  .shuffle-notice { font-size: 12px; color: var(--muted); margin-top: 0.75rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Quiz Nunitoattivo</div>
+  <h1>Controllo Biomedico</h1>
+  <p class="subtitle">Spinna le domande e scopri se hai vinto. Le domande sono in ordine casuale. Ricorda che puoi sempre ritentare al prossimo sorteggio!</p>
+  </div>
+</header>
+
+<main>
+  <div class="score-bar">
+    <span class="score-label">Progressione</span>
+    <span class="score-value" id="score-text">0 / 0</span>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progress-bar"></div></div>
+  <div id="quiz-container"></div>
+  <div class="summary" id="summary">
+    <div class="summary-score" id="final-score">—</div>
+    <div class="summary-label">punteggio finale</div>
+    <div class="summary-detail">
+      <div class="stat-pill"><strong id="s-correct">0</strong>Corrette</div>
+      <div class="stat-pill"><strong id="s-wrong">0</strong>Errate</div>
+      <div class="stat-pill"><strong id="s-total">0</strong>Totali</div>
+    </div>
+    <button class="btn-restart" onclick="restartQuiz()">Ricomincia con ordine diverso</button>
+    <p class="shuffle-notice">Le domande verranno rimescolate casualmente.</p>
+  </div>
+</main>
+
+<script>
+const ALL_QUESTIONS = [
+  { n:1, q:"Quali sono i principali muscoli coinvolti nell'ispirazione a riposo e durante l'esercizio?", opts:["Diaframma e muscoli Nunitocostali esterni","Muscoli addominali e muscoli Nunitocostali Nunitoni","Muscoli del collo e muscoli pettorali","Muscoli del dorso e muscoli delle gambe"], correct:0, note:"Risposta considerata corretta in fisiologia respiratoria di base; durante esercizio intenso Nunitovengono anche muscoli accessori inspiratori." },
+  { n:2, q:"Qual è il rapporto ventilazione-perfusione (V/Q) ideale nei polmoni?", opts:["0.5","1.0","1.5","2.0"], correct:1, note:"Fisiologicamente il valore medio è circa 0,8; il valore 1 rappresenta il rapporto ideale tra ventilazione e perfusione." },
+  { n:3, q:"Qual è il principale fattore che contribuisce alla resistenza delle vie aeree?", opts:["Diametro delle vie aeree","Frequenza respiratoria","Volume corrente","Pressione parziale dell'ossigeno"], correct:0, note:"Secondo la legge di Poiseuille piccole variazioni del raggio determinano grandi variazioni della resistenza." },
+  { n:4, q:"Quali fattori influenzano la curva di dissociazione dell'ossiemoglobina?", opts:["Aumento della temperatura","Diminuzione del pH","Aumento dei livelli di 2-3 DPG","Tutte le precedenti"], correct:3, note:"Tutti i fattori elencati determinano uno spostamento della curva verso destra e facilitano il rilascio di ossigeno ai tessuti." },
+  { n:5, q:"Qual è il principale modo di trasporto dell'ossigeno nel sangue?", opts:["Disciolto nel sangue","Legato all'emoglobina","Trasportato come bicarbonato","Legato ai globuli bianchi"], correct:1, note:"Circa il 98-99% dell'ossigeno è trasportato legato all'emoglobina." },
+  { n:6, q:"Qual è uno degli obiettivi principali del sistema cardiovascolare durante l'esercizio?", opts:["Aumentare la pressione arteriosa","Ridurre il flusso di sangue ai muscoli","Aumentare la gittata cardiaca","Diminuire la frequenza cardiaca"], correct:2, note:"L'aumento della gittata cardiaca consente di soddisfare la maggiore richiesta metabolica dei muscoli attivi." },
+  { n:7, q:"Quale dei seguenti fattori influenza il volume sistolico durante l'esercizio?", opts:["La temperatura corporea","Il volume telediastolico","La frequenza respiratoria","La concentrazione di ossigeno nel sangue"], correct:1, note:"Il volume telediastolico rappresenta il principale determinante del meccanismo di Frank-Starling." },
+  { n:8, q:"Quale meccanismo contribuisce all'aumento del ritorno venoso durante l'esercizio?", opts:["La vasodilatazione delle arterie","La pompa muscolare","La diminuzione della frequenza cardiaca","La riduzione della gittata cardiaca"], correct:1, note:"Contribuiscono anche la pompa respiratoria e la venocostrizione simpatica." },
+  { n:9, q:"Quale delle seguenti affermazioni è vera riguardo alla regolazione della frequenza cardiaca durante l'esercizio?", opts:["L'aumento iniziale della frequenza cardiaca è dovuto alla stimolazione simpatica","La frequenza cardiaca diminuisce con l'aumento dell'intensità dell'esercizio","La stimolazione parasimpatica aumenta la frequenza cardiaca","L'eliminazione del tono parasimpatico contribuisce all'aumento iniziale della frequenza cardiaca"], correct:3, note:"Nelle prime fasi dell'esercizio l'aumento della frequenza cardiaca dipende soprattutto dalla rimozione del tono vagale." },
+  { n:10, q:"Quale dei seguenti è un potente vasodilatatore prodotto localmente nei muscoli durante l'esercizio?", opts:["L'adrenalina","L'ossido nitrico","La noradrenalina","Il cortisolo"], correct:1, note:"L'ossido nitrico è uno dei principali mediatori della vasodilatazione locale da esercizio." },
+  { n:11, q:"Qual è il ruolo dell'area preottico-anteriore dell'ipotalamo (POAH) nella termoregolazione?", opts:["Regola la produzione di calore tramite la contrazione muscolare","Funziona come termostato corporeo","Controlla la sudorazione durante l'esercizio fisico","Regola il metabolismo basale"], correct:1, note:"La POAH integra le informazioni termiche periferiche e centrali coordinando le risposte termoregolatorie." },
+  { n:12, q:"Quale dei seguenti meccanismi è il più importante per la perdita di calore durante l'esercizio fisico in un ambiente caldo?", opts:["Conduzione","Convezione","Irraggiamento","Evaporazione"], correct:3, note:"In ambienti caldi l'evaporazione rappresenta quasi l'unica modalità efficace di dissipazione del calore." },
+  { n:13, q:"Qual è la definizione di omeotermo?", opts:["Un organismo che mantiene costante la temperatura corporea Nunitona","Un organismo che varia la temperatura corporea in base all'ambiente","Un organismo che produce calore solo tramite il metabolismo","Un organismo che non regola la propria temperatura corporea"], correct:0, note:"Omeotermia non significa temperatura perfettamente costante, ma mantenuta entro limiti fisiologici ristretti." },
+  { n:14, q:"Quale formula viene utilizzata per calcolare la temperatura corporea media (MBT)?", opts:["MBT = 0.64 (temperatura cutanea) + 0.36 (temperatura Nunitona)","MBT = 0.64 (temperatura Nunitona) + 0.36 (temperatura cutanea)","MBT = 0.50 (temperatura cutanea) + 0.50 (temperatura Nunitona)","MBT = 0.75 (temperatura Nunitona) + 0.25 (temperatura cutanea)"], correct:1, note:"Formula classica della Mean Body Temperature (MBT) utilizzata in fisiologia dell'esercizio." },
+  { n:15, q:"Quale dei seguenti fattori influisce maggiormente sulla quantità di calore perso tramite evaporazione durante l'esercizio fisico?", opts:["La temperatura dell'aria","La velocità del vento","L'umidità relativa","La pressione atmosferica"], correct:2, note:"Un'elevata umidità riduce il gradiente evaporativo e limita l'efficacia della sudorazione." },
+  { n:16, q:"Qual è l'effetto della diminuzione della pressione parziale di ossigeno (PO₂) sull'emoglobina (HbO₂) in altitudine?", opts:["Aumenta la capacità di trasporto dell'ossigeno","Aumenta la saturazione dell'emoglobina","Non ha effetto sulla saturazione dell'emoglobina","Diminuisce la capacità di trasporto dell'ossigeno"], correct:3, note:"Formulazione discutibile; diminuisce soprattutto la saturazione dell'emoglobina." },
+  { n:17, q:"Qual è la causa principale della diminuzione della VO₂max in altitudine?", opts:["Aumento della frequenza cardiaca","Diminuzione della pressione parziale di ossigeno","Diminuzione della temperatura corporea","Diminuzione del volume sistolico"], correct:1, note:"La riduzione della PO₂ inspirata limita il trasporto e l'utilizzazione dell'ossigeno." },
+  { n:18, q:"Quale strategia di allenamento è stata proposta per migliorare la performance durante gare di lunga distanza?", opts:["Allenarsi ad alta quota e vivere a livello del mare","Allenarsi a livello del mare e vivere ad alta quota","Vivere ad alta quota per promuovere un esercizio più intenso e di durata più lunga","Allenarsi e vivere a livello del mare"], correct:0, note:"La risposta indicata nel materiale del corso è A. La strategia \"live high–train low\" è generalmente la più supportata dalla letteratura, ma verificare con il materiale del corso." },
+  { n:19, q:"Qual è l'effetto della bassa pressione di ossigeno in altitudine sul midollo osseo?", opts:["Diminuisce la produzione di globuli rossi","Non ha effetto sulla produzione di globuli rossi","Aumenta la produzione di globuli rossi","Diminuisce la produzione di emoglobina"], correct:2, note:"L'aumento della produzione eritrocitaria è mediato principalmente dall'eritropoietina (EPO)." },
+  { n:20, q:"Qual è la differenza principale tra l'atmosfera standard ICAO e la pressione reale in alta quota?", opts:["L'atmosfera standard sovrastima la rarefazione dell'aria","Non ha effetti significativi per la fisiologia a riposo e durante esercizio","La pressione reale è più bassa della pressione standard","Non c'è differenza tra l'atmosfera standard e la pressione reale"], correct:2, note:"Il concetto centrale è la riduzione della pressione barometrica reale rispetto ai valori standard; da verificare sul materiale specifico del corso." },
+  { n:21, q:"Qual è il principale determinante ambientale della fisiologia in alta quota?", opts:["Temperatura","Umidità","Pressione barometrica","Radiazioni solari"], correct:2, note:"La pressione barometrica determina direttamente la pressione parziale inspirata dell'ossigeno." },
+  { n:22, q:"Quale delle seguenti è una delle risposte fisiologiche all'ipossia?", opts:["Riduzione della ventilazione","Aumento della produzione di eritropoietina","Diminuzione dell'ematocrito","Riduzione del metabolismo"], correct:1, note:"L'aumento dell'EPO rappresenta una delle risposte endocrine più importanti all'ipossia." },
+  { n:23, q:"Qual è uno degli obiettivi dell'acclimatazione?", opts:["Ridurre il trasporto dell'ossigeno ai tessuti","Ridurre il rischio di malattie d'alta quota","Diminuire la produzione di eritropoietina","Aumentare la temperatura corporea"], correct:1, note:"L'acclimatazione mira a migliorare la tolleranza all'ipossia e ridurre il rischio di AMS, HACE e HAPE." },
+  { n:24, q:"Quale dei seguenti fattori ambientali aumenta con l'altitudine?", opts:["Temperatura","Umidità","Radiazioni solari e UV","Pressione barometrica"], correct:2, note:"L'atmosfera più rarefatta filtra meno efficacemente le radiazioni ultraviolette." },
+  { n:25, q:"Qual è uno degli effetti dell'acclimatazione sull'esercizio?", opts:["Riduzione della performance submassimale","Aumento della performance submassimale","Aumento del consumo massimo di ossigeno","Riduzione della ventilazione"], correct:1, note:"L'acclimatazione migliora soprattutto la tolleranza agli sforzi submassimali; il VO₂max rimane generalmente ridotto rispetto al livello del mare." },
+  { n:26, q:"Quali sono i sintomi classici dell'edema cerebrale d'alta quota (HACE)?", opts:["Cefalea e nausea","Alterazione dello stato mentale e atassia","Tosse e dispnea","Dolore retrosternale"], correct:1, note:"Atassia e alterazione dello stato mentale sono considerati segni distintivi dell'HACE." },
+  { n:27, q:"Qual è il metodo più semplice per valutare il mal di montagna acuto (AMS) in contesti di esposizione alla quota?", opts:["Lake Louise Questionnaire Score","Esame ultrasonografico","Risonanza magnetica","Saturazione periferica"], correct:0, note:"Il Lake Louise Score rappresenta il metodo clinico più utilizzato per la diagnosi di AMS." },
+  { n:28, q:"Quali sono i principali meccanismi di acclimatazione all'ipossia?", opts:["Aumento della ventilazione polmonare","Aumento del numero di globuli rossi","[Opzione non disponibile nel testo originale]","[Opzione non disponibile nel testo originale]"], correct:-1, incomplete:true, note:"Domanda incompleta nel materiale originale. Sia A (risposta acuta) che B (risposta cronica) sono meccanismi di acclimatazione. La risposta indicata è A." },
+  { n:29, q:"Qual è l'incidenza stimata dell'edema polmonare d'alta quota (HAPE) a un'altitudine di 4559 m con una velocità di salita di 2-4 giorni?", opts:["0.2%","7%","16%","25%"], correct:1, note:"Risposta da verificare sul materiale del corso." },
+  { n:30, q:"Quale disciplina utilizza sci alpini e permette il movimento libero dei talloni durante la salita?", opts:["Sci di fondo","Sci alpino","Sci alpinismo","Biathlon"], correct:2, note:"Caratteristica distintiva dello sci alpinismo è la possibilità di liberare il tallone durante la fase di salita." },
+  { n:31, q:"Quale fattore influenza maggiormente la mortalità in un incidente da valanga con uno scialpinista completamente sepolto?", opts:["Ipossia","Ipossia e ipercapnia","Ipotermia","Trauma"], correct:1, note:"Nelle sepolture complete la causa più frequente di morte è l'asfissia dovuta a ipossia e accumulo di CO₂." },
+  { n:32, q:"Quale percentuale di incidenti da valanga è causata dagli scialpinisti?", opts:["44%","67%","1%","90%"], correct:1, note:"Il dato può variare a seconda delle casistiche considerate; verificare con il materiale del corso." },
+  { n:33, q:"Quali consigli daresti a una persona con diagnosi di ipertensione arteriosa?", opts:["Affidarsi al medico per le visite di controllo","Evitare l'assunzione regolare o di grandi quantità di alcool","Iniziare un programma di attività fisica aerobica regolare e una dieta specifica","Tutte le precedenti"], correct:3, note:"Il trattamento dell'ipertensione si basa sulla combinazione di monitoraggio clinico e modifiche dello stile di vita." },
+  { n:34, q:"Un programma terapeutico che ha come obiettivo la riduzione del peso corporeo in una persona obesa o grande obesa prevede:", opts:["Un programma di esercizio fisico prevalentemente aerobico di intensità lieve-moderata per 60 min almeno 3 volte a settimana","Un counseling cognitivo/comportamentale","Un programma nutrizionale condiviso che preveda un deficit energetico di non più di 1000 kcal/die","Tutte le precedenti"], correct:3, note:"La gestione dell'obesità richiede un approccio multidisciplinare integrato." },
+  { n:35, q:"Oltre all'ossigenazione del sangue un'altra importante funzione svolta dall'apparato respiratorio è:", opts:["Il mantenimento di un adeguato contenuto idrico nell'organismo","La regolazione del pH ematico tramite l'eliminazione dell'anidride carbonica","L'assorbimento di importanti micronutrienti contenuti nell'atmosfera","La produzione di globuli rossi"], correct:1, note:"La regolazione della PaCO₂ è uno dei principali meccanismi di controllo dell'equilibrio acido-base." },
+  { n:36, q:"Lo scambio di gas contenuti nell'atmosfera e nel sangue venoso avviene:", opts:["Nella laringe","Nella trachea","Nei bronchi","Negli alveoli"], correct:3, note:"Gli alveoli costituiscono la principale superficie di diffusione per O₂ e CO₂." },
+  { n:37, q:"Il principale muscolo della respirazione è:", opts:["Il diaframma","Il grande pettorale","L'Nunitocostale","Lo sternocleidomastoideo"], correct:0, note:"Il diaframma genera la maggior parte del lavoro respiratorio a riposo." },
+  { n:38, q:"La frequenza e la profondità dell'atto respiratorio è influenzata:", opts:["Dal pH ematico","Dai centri del respiro situati nel sistema nervoso centrale","Dai chemocettori aortici e carotidei","Tutte le precedenti"], correct:3, note:"La ventilazione è regolata dall'integrazione di segnali nervosi e chimici." },
+  { n:39, q:"Quale delle seguenti affermazioni riguardo le malattie dell'apparato respiratorio è FALSA?", opts:["In età pediatrica la maggior parte sono causate da infezioni virali","L'enfisema e la broncopneumopatia cronica ostruttiva (BPCO) si manifestano più frequentemente sopra i 65 anni","L'asma allergico è più frequente nell'età adulta","Il fumo di sigaretta e l'inquinamento atmosferico sono i principali fattori di rischio"], correct:2, note:"L'asma allergico è più frequentemente associato all'età pediatrica e giovanile." },
+  { n:40, q:"Il mal di montagna acuto si verifica generalmente:", opts:["Entro 24 h dall'esposizione all'alta quota","Entro 36 h dall'esposizione all'alta quota","Entro 72 h dall'esposizione all'alta quota","Dopo una settimana dall'esposizione all'alta quota"], correct:-1, note:"BENVENUTI ALLA RUOTA DI VERONA RAGA! Il mal di montagna acuto (AMS) compare generalmente entro 6-12 ore dall'arrivo in quota e quasi sempre entro 24 ore. I sintomi tendono a raggiungere il picco nelle successive 24-48 ore. Quindi è la risposta che gli pare al prof." },
+  { n:41, q:"Quale delle seguenti NON è una risposta fisiologica all'ipossia in alta quota?", opts:["Polipnea e tachicardia","Insonnia e apnee notturne","Aumento della diuresi","Aumento della temperatura corporea"], correct:3, note:"Tachicardia, iperventilazione e diuresi aumentata sono comuni risposte fisiologiche all'ipossia; l'aumento della temperatura corporea non lo è." },
+  { n:42, q:"Per avere successo nel processo di acclimatazione all'alta quota è necessario:", opts:["Introdurre regolarmente calorie facilmente digeribili e mantenersi ben idratati","Frazionare il dislivello in più tappe","Riposare ad Nunitovalli regolari","Tutte le precedenti"], correct:3, note:"Una corretta acclimatazione richiede progressione graduale della quota, adeguata nutrizione, idratazione e recupero." },
+  { n:43, q:"La miglior soluzione, se attuabile in sicurezza, ai disturbi dell'adattamento all'alta quota è:", opts:["Scendere di quota","Assumere acetazolamide","Assumere cortisone","L'ossigenoterapia"], correct:0, note:"La discesa rappresenta il trattamento più efficace e definitivo per AMS, HACE e HAPE." },
+  { n:44, q:"Gli Nunitoventi del soccorso alpino in Italia sono richiesti principalmente per quale motivo:", opts:["Assideramento","Cadute o incapacità ad affrontare il percorso","Arresto cardiaco","Mal di montagna"], correct:1, note:"Gli incidenti traumatici e le difficoltà tecniche rappresentano la quota maggiore degli Nunitoventi." },
+  { n:45, q:"Una sacca d'aria in un travolto da valanga:", opts:["È definita come uno spazio aereo di qualsiasi dimensione attorno alla bocca o al naso","Non viene considerata nel triage del paziente","Può essere definita solo dal sanitario sul posto","Non viene registrata nella checklist del travolto da valanga"], correct:0, note:"La presenza di una sacca d'aria influenza significativamente prognosi e strategie di soccorso." },
+  { n:46, q:"Quale di queste ossa è più frequentemente Nunitoessata dalla frattura da stress:", opts:["Collo del femore","Polso","Metatarsi","Calcagno"], correct:2, note:"Le fratture da stress Nunitoessano frequentemente metatarsi, tibia e perone negli sportivi." },
+  { n:47, q:"La lesione di Hill-Sachs nelle lussazioni di spalla Nunitoessa:", opts:["La testa omerale","Il cercine glenoideo","Il collo della scapola","Il collo chirurgico dell'omero"], correct:0, note:"Consiste in una depressione ossea della porzione postero-laterale della testa omerale." },
+  { n:48, q:"La sede più frequente di lesione meniscale è:", opts:["Il corno anteriore del menisco mediale","Il corno posteriore del menisco mediale","Il corno anteriore del menisco laterale","Il corno posteriore del menisco laterale"], correct:1, note:"Il menisco mediale è meno mobile del laterale e risulta più frequentemente lesionato." },
+  { n:49, q:"La rottura della cuffia dei rotatori della spalla rappresenta spesso la fase ultima di quale malattia:", opts:["Artrosi gleno-omerale","Lussazione recidivante di spalla","Sindrome da attrito acromion-omerale","Nessuna di queste"], correct:2, note:"Il conflitto subacromiale cronico può evolvere in degenerazione e successiva rottura tendinea." },
+  { n:50, q:"Nell'articolazione scapolo-omerale:", opts:["I capi articolari sono separati da un disco fibro-cartilagineo","Decorre il tendine del capo lungo del bicipite","La cavità glenoidea si trova sul margine vertebrale della scapola","La capsula articolare è estremamente spessa"], correct:1, note:"Il tendine del capo lungo del bicipite attraversa l'articolazione ed è frequentemente coinvolto in patologie di spalla." },
+  { n:51, q:"La deformità a tasto di pianoforte è tipica della:", opts:["Frattura di polso","Lussazione acromion-claveare","[Opzione non disponibile nel testo originale]","[Opzione non disponibile nel testo originale]"], correct:1, incomplete:true, note:"Domanda con opzioni C e D mancanti nel testo originale. La risposta corretta è B (Lussazione acromion-claveare): il segno è dovuto alla risalita della clavicola rispetto all'acromion." },
+  { n:52, q:"Quale di questi test è specifico per le lesioni del legamento crociato posteriore:", opts:["Test in abduzione a ginocchio esteso","Jerk test","Lachman test","Cassetto posteriore"], correct:3, note:"Il test del cassetto posteriore valuta la traslazione posteriore della tibia rispetto al femore." },
+  { n:53, q:"Per frattura da stress o da durata si intende:", opts:["Una frattura che colpisce individui debilitati","Una frattura dovuta a traumi ad alta energia","Una frattura in sedi di pregresse patologie","Una frattura da microtraumi ripetuti"], correct:3, note:"Tipica degli sport che prevedono elevati carichi ripetuti e insufficiente recupero." },
+  { n:54, q:"I principi del trattamento di una frattura esposta sono:", opts:["Sutura dell'esposizione e terapia antibiotica","Debridement, lavaggio e stabilizzazione della frattura da eseguirsi in urgenza","Stabilizzazione della frattura con fissatore esterno","Esposizione lasciata aperta e medicazione sterile"], correct:1, note:"Il controllo della contaminazione e la prevenzione dell'infezione sono prioritari." },
+  { n:55, q:"La lesione di Bankart è caratteristica di:", opts:["Rottura a tutto spessore della cuffia dei rotatori","Lussazione acromion-claveare","Lussazione recidivante gleno-omerale","Artrosi gleno-omerale"], correct:2, note:"Consiste nella lesione del cercine glenoideo antero-inferiore." },
+  { n:57, q:"Quale di questi muscoli fa parte della cuffia dei rotatori? (domanda parziale nel testo originale)", opts:["Bicipite brachiale","Tricipite brachiale","Grande pettorale","Latissimo del dorso"], correct:-1, incomplete:true, note:"Domanda incompleta nel testo originale: manca il testo della domanda. La risposta indicata è A (m. bicipite brachiale), ma nessuna delle opzioni elencate fa parte della cuffia dei rotatori (sopraspinato, infraspinato, piccolo rotondo, sottoscapolare)." },
+  { n:58, q:"Quale meccanismo patogenetico è più spesso responsabile della lesione del legamento crociato posteriore:", opts:["Trauma in varismo rotazione Nunitona","Trauma diretto antero-posteriore","Trauma in iperflessione","Trauma in iperestensione"], correct:1, note:"Il classico meccanismo è il \"dashboard injury\" negli incidenti automobilistici." },
+  { n:59, q:"La guarigione clinica di una distorsione avviene in:", opts:["10 giorni","20 giorni","5 giorni","40 giorni"], correct:3, note:"Risposta da verificare in base al grado della distorsione e al materiale del corso." },
+  { n:60, q:"Il tempo di consolidazione di una frattura di polso può variare:", opts:["40 giorni","20 giorni","90 giorni","120 giorni"], correct:0, note:"Valore indicativo; dipende da tipo di frattura, età e trattamento." }
+];
+
+const LETTERS = ['A','B','C','D'];
+let questions = [];
+let answered = 0;
+let correct = 0;
+let selected = {};
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function buildQuiz() {
+  const pinned = ALL_QUESTIONS.find(q => q.n === 40);
+  const rest = shuffle(ALL_QUESTIONS.filter(q => q.n !== 40));
+  questions = [pinned, ...rest];
+  answered = 0;
+  correct = 0;
+  selected = {};
+  updateProgress();
+
+  const container = document.getElementById('quiz-container');
+  container.innerHTML = '';
+  document.getElementById('summary').classList.remove('visible');
+
+  questions.forEach((q, idx) => {
+    const card = document.createElement('div');
+    card.className = 'question-card';
+    card.id = 'card-' + idx;
+
+    const optsHtml = q.opts.map((opt, i) => `
+      <button class="option" data-qi="${idx}" data-oi="${i}" onclick="selectOption(${idx},${i})">
+        <span class="opt-letter">${LETTERS[i]}</span>
+        <span>${opt}</span>
+      </button>
+    `).join('');
+
+    card.innerHTML = `
+      <div class="q-header">
+        <span class="q-num">${String(idx+1).padStart(2,'0')}</span>
+        <span class="q-text">${q.q}</span>
+      </div>
+      <div class="options" id="opts-${idx}">${optsHtml}</div>
+      <div class="card-footer">
+        <button class="btn-confirm" id="confirm-${idx}" disabled onclick="confirmAnswer(${idx})">Conferma risposta</button>
+        <span class="result-tag" id="result-${idx}"></span>
+      </div>
+      <div class="note-box" id="note-${idx}">
+        <div class="note-label">📋 Nota</div>
+        ${q.note}
+      </div>
+    `;
+    container.appendChild(card);
+  });
+}
+
+function selectOption(qi, oi) {
+  const card = document.getElementById('card-' + qi);
+  if (card.classList.contains('answered-correct') || card.classList.contains('answered-wrong')) return;
+  selected[qi] = oi;
+  document.querySelectorAll(`[data-qi="${qi}"]`).forEach(b => b.classList.remove('selected'));
+  const btn = document.querySelector(`[data-qi="${qi}"][data-oi="${oi}"]`);
+  if (btn) btn.classList.add('selected');
+  document.getElementById('confirm-' + qi).disabled = false;
+}
+
+function confirmAnswer(qi) {
+  const q = questions[qi];
+  const chosenOi = selected[qi];
+  if (chosenOi === undefined) return;
+
+  const card = document.getElementById('card-' + qi);
+  const opts = document.querySelectorAll(`[data-qi="${qi}"]`);
+  const resultTag = document.getElementById('result-' + qi);
+
+  if (q.incomplete) {
+    opts.forEach(b => { b.disabled = true; b.classList.remove('selected'); });
+    card.classList.add('answered-wrong');
+    resultTag.textContent = '⚠ Domanda incompleta';
+    resultTag.className = 'result-tag incomplete';
+  } else {
+    opts.forEach(b => {
+      b.disabled = true;
+      b.classList.remove('selected');
+      const oi = parseInt(b.dataset.oi);
+      if (oi === q.correct) b.classList.add('correct');
+      else if (oi === chosenOi) b.classList.add('wrong');
+    });
+    const isCorrect = chosenOi === q.correct;
+    card.classList.add(isCorrect ? 'answered-correct' : 'answered-wrong');
+    resultTag.textContent = isCorrect ? '✓ Corretta' : '✗ Errata';
+    resultTag.className = 'result-tag ' + (isCorrect ? 'correct' : 'wrong');
+    if (isCorrect) correct++;
+  }
+
+  document.getElementById('note-' + qi).classList.add('visible');
+  document.getElementById('confirm-' + qi).disabled = true;
+  answered++;
+  updateProgress();
+  if (answered === questions.length) showSummary();
+}
+
+function updateProgress() {
+  const pct = questions.length ? (answered / questions.length) * 100 : 0;
+  document.getElementById('progress-bar').style.width = pct + '%';
+  document.getElementById('score-text').textContent = correct + ' / ' + answered + ' corrette (su ' + answered + ' risposte date)';
+}
+
+function showSummary() {
+  const pct = Math.round((correct / questions.length) * 100);
+  document.getElementById('final-score').textContent = pct + '%';
+  document.getElementById('s-correct').textContent = correct;
+  document.getElementById('s-wrong').textContent = questions.length - correct;
+  document.getElementById('s-total').textContent = questions.length;
+  document.getElementById('summary').classList.add('visible');
+  document.getElementById('summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function restartQuiz() {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  setTimeout(buildQuiz, 400);
+}
+
+buildQuiz();
+</script>
+</body>
+</html>
